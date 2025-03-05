@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 
 type FormValues = {
@@ -10,6 +10,9 @@ type FormValues = {
         facebook: string;
     };
     phoneNumbers: string[];
+    phNumbers: {
+        number: string;
+    }[];
 };
 
 const YouTubeForm = () => {
@@ -23,11 +26,16 @@ const YouTubeForm = () => {
                 twitter: "samir_twitter",
                 facebook: "samir_facebook"
             },
-            phoneNumbers: ["", ""]
+            phoneNumbers: ["", ""],
+            phNumbers: [{ number: ""}]
         }
     });
     const { register, control, handleSubmit, formState } = form;
     const { errors } = formState;
+    const { fields, append, remove } = useFieldArray({
+        name: "phNumbers",
+        control
+    })
 
     const onSubmit = (data : FormValues) => {
         console.log("Form Submitted", data);
@@ -86,7 +94,20 @@ const YouTubeForm = () => {
                 <input type="text" id="primary-phone" {...register("phoneNumbers.0")} />
 
                 <label htmlFor="secondary-phone">Secondary Phone Number</label>
-                <input type="text" id="secondary-phone" {...register("phoneNumbers.1")} /><br />
+                <input type="text" id="secondary-phone" {...register("phoneNumbers.1")} />
+
+                <div>
+                    <label htmlFor="phoneNumbers">Phone Numbers</label>
+                    <ul>
+                        {fields.map((field, index) => (
+                            <li key={field.id}>
+                                <input type="text" {...register(`phNumbers.${index}.number` as const)} />
+                                <button type="button" onClick={() => remove(index)}>Remove</button>
+                            </li>
+                        ))}
+                    </ul>
+                    <button type="button" onClick={() => append({ number: "" })}>Add Phone Number</button>
+                </div> <br />
 
                 <button>Submit</button>
             </form>
